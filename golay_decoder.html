@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Codice di Golay</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --border: #1e1e2e;
+    --accent: #00ffc8;
+    --accent2: #7b2fff;
+    --text: #e8e8f0;
+    --muted: #6666aa;
+    --error: #ff4466;
+    --success: #00ffc8;
+    --warn: #ffaa00;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 20% 10%, rgba(123,47,255,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 90%, rgba(0,255,200,0.05) 0%, transparent 60%);
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  header p {
+    color: var(--muted);
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .badge {
+    display: inline-block;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-size: 0.65rem;
+    padding: 2px 8px;
+    border-radius: 2px;
+    letter-spacing: 0.2em;
+    margin-top: 0.75rem;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 900px;
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent2), var(--accent), transparent);
+    opacity: 0.4;
+  }
+
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .card-title span {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+  }
+
+  label {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+    margin-top: 1rem;
+  }
+
+  label:first-of-type { margin-top: 0; }
+
+  input[type="text"], select, textarea {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.85rem;
+    padding: 0.6rem 0.8rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  input[type="text"]:focus, select:focus, textarea:focus {
+    border-color: var(--accent2);
+    box-shadow: 0 0 0 2px rgba(123,47,255,0.15);
+  }
+
+  input.valid { border-color: var(--success) !important; }
+  input.invalid { border-color: var(--error) !important; }
+
+  .hint {
+    font-size: 0.65rem;
+    color: var(--muted);
+    margin-top: 0.3rem;
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.2rem;
+    flex-wrap: wrap;
+  }
+
+  button {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.6rem 1.2rem;
+    border: 1px solid var(--accent);
+    border-radius: 3px;
+    background: transparent;
+    color: var(--accent);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  button:hover {
+    background: var(--accent);
+    color: var(--bg);
+    box-shadow: 0 0 20px rgba(0,255,200,0.3);
+  }
+
+  button.secondary {
+    border-color: var(--muted);
+    color: var(--muted);
+  }
+
+  button.secondary:hover {
+    background: var(--muted);
+    color: var(--bg);
+    box-shadow: none;
+  }
+
+  button.danger {
+    border-color: var(--error);
+    color: var(--error);
+  }
+
+  button.danger:hover {
+    background: var(--error);
+    color: var(--bg);
+    box-shadow: 0 0 20px rgba(255,68,102,0.3);
+  }
+
+  .result-box {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 1rem;
+    margin-top: 1rem;
+    min-height: 60px;
+  }
+
+  .result-label {
+    font-size: 0.6rem;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+
+  .result-value {
+    font-size: 0.85rem;
+    word-break: break-all;
+    line-height: 1.6;
+  }
+
+  .result-value.success { color: var(--success); }
+  .result-value.error { color: var(--error); }
+  .result-value.warn { color: var(--warn); }
+
+  .bits-display {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    margin-top: 0.5rem;
+  }
+
+  .bit {
+    width: 22px; height: 22px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem;
+    border-radius: 2px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+
+  .bit.one { background: rgba(0,255,200,0.15); border-color: var(--accent); color: var(--accent); }
+  .bit.zero { background: var(--surface); border-color: var(--border); color: var(--muted); }
+  .bit.flipped { background: rgba(255,68,102,0.15); border-color: var(--error); color: var(--error); box-shadow: 0 0 6px rgba(255,68,102,0.4); }
+  .bit:hover { transform: scale(1.1); }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+
+  .stat {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+
+  .stat-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--accent);
+  }
+
+  .stat-label {
+    font-size: 0.6rem;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-top: 0.2rem;
+  }
+
+  .algo-steps {
+    list-style: none;
+    margin-top: 0.5rem;
+  }
+
+  .algo-steps li {
+    font-size: 0.75rem;
+    color: var(--muted);
+    padding: 0.3rem 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .algo-steps li:last-child { border-bottom: none; }
+
+  .algo-steps li.active { color: var(--accent); }
+  .algo-steps li.done { color: var(--success); }
+  .algo-steps li .step-icon { flex-shrink: 0; width: 14px; }
+
+  .sep {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--border);
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin: 0.5rem 0;
+  }
+
+  .sep::before, .sep::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .noise-slider {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+
+  input[type=range] {
+    flex: 1;
+    -webkit-appearance: none;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--border);
+    outline: none;
+  }
+
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    box-shadow: 0 0 8px var(--accent);
+  }
+
+  .slider-val {
+    min-width: 30px;
+    text-align: right;
+    font-size: 0.8rem;
+    color: var(--accent);
+  }
+
+  @keyframes fadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
+  .fade-in { animation: fadeIn 0.3s ease forwards; }
+
+  .tag {
+    display: inline-block;
+    background: rgba(123,47,255,0.15);
+    border: 1px solid var(--accent2);
+    color: var(--accent2);
+    font-size: 0.6rem;
+    padding: 1px 6px;
+    border-radius: 2px;
+    letter-spacing: 0.1em;
+  }
+
+  .section-index {
+    font-size: 0.6rem;
+    color: var(--border);
+    margin-top: 0.25rem;
+    letter-spacing: 0.05em;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Codice di Golay</h1>
+  <p>Codifica &amp; Decodifica — Correzione di errori</p>
+  <div class="badge">G(23,12) / G(24,12)</div>
+</header>
+
+<div class="container">
+
+  <!-- ENCODE -->
+  <div class="card">
+    <div class="card-title"><span></span> Codifica</div>
+
+    <label>Messaggio (12 bit)</label>
+    <input type="text" id="msg-input" placeholder="000000000000" maxlength="12">
+    <div class="hint">Inserisci esattamente 12 bit (0 e 1). Puoi anche cliccare per generarne uno casuale.</div>
+
+    <div class="btn-row">
+      <button onclick="encodeMsg()">Codifica</button>
+      <button class="secondary" onclick="randomMsg()">Casuale</button>
+      <button class="secondary" onclick="clearAll()">Reset</button>
+    </div>
+
+    <div id="encode-result" style="display:none" class="fade-in">
+      <div class="sep">risultato</div>
+      <div class="result-box">
+        <div class="result-label">Codeword (24 bit)</div>
+        <div id="codeword-display" class="bits-display"></div>
+        <div class="section-index" id="cw-idx"></div>
+      </div>
+      <div class="stats-row">
+        <div class="stat"><div class="stat-val" id="stat-k">12</div><div class="stat-label">Bit info</div></div>
+        <div class="stat"><div class="stat-val" id="stat-n">24</div><div class="stat-label">Bit totali</div></div>
+        <div class="stat"><div class="stat-val" id="stat-r">12</div><div class="stat-label">Bit ridond.</div></div>
+        <div class="stat"><div class="stat-val">3</div><div class="stat-label">t-correggibile</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHANNEL -->
+  <div class="card" id="channel-card" style="display:none">
+    <div class="card-title"><span style="background:var(--warn)"></span> Canale rumoroso</div>
+    <p style="font-size:0.75rem; color:var(--muted); margin-bottom:1rem;">
+      Clicca i bit per introdurre errori manualmente, oppure usa il generatore casuale.
+    </p>
+
+    <div id="channel-bits" class="bits-display"></div>
+
+    <label style="margin-top:1rem;">Errori casuali</label>
+    <div class="noise-slider">
+      <input type="range" id="noise-count" min="0" max="7" value="0">
+      <div class="slider-val" id="noise-val">0</div>
+      <span style="font-size:0.7rem; color:var(--muted)">errori</span>
+    </div>
+
+    <div class="btn-row">
+      <button onclick="applyNoise()">Applica rumore</button>
+      <button class="secondary" onclick="resetChannel()">Ripristina</button>
+      <button onclick="decodeWord()">Decodifica →</button>
+    </div>
+
+    <div id="error-info" style="margin-top:0.75rem; font-size:0.75rem; color:var(--muted)"></div>
+  </div>
+
+  <!-- DECODE -->
+  <div class="card" id="decode-card" style="display:none">
+    <div class="card-title"><span style="background:var(--accent2)"></span> Decodifica</div>
+
+    <div id="algo-steps-list">
+      <ul class="algo-steps" id="steps-ul"></ul>
+    </div>
+
+    <div id="decode-result" style="display:none; margin-top:1rem;" class="fade-in">
+      <div class="sep">risultato</div>
+      <div class="result-box">
+        <div class="result-label">Messaggio recuperato</div>
+        <div id="recovered-bits" class="bits-display"></div>
+      </div>
+      <div class="result-box" style="margin-top:0.75rem;">
+        <div class="result-label">Stato</div>
+        <div id="decode-status" class="result-value"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MANUAL DECODE -->
+  <div class="card">
+    <div class="card-title"><span style="background:var(--accent2)"></span> Decodifica manuale</div>
+    <p style="font-size:0.75rem; color:var(--muted); margin-bottom:1rem;">
+      Inserisci direttamente una parola di codice (24 bit) da decodificare.
+    </p>
+    <label>Parola ricevuta (24 bit)</label>
+    <input type="text" id="manual-recv" placeholder="000000000000000000000000" maxlength="24">
+    <div class="btn-row">
+      <button onclick="manualDecode()">Decodifica</button>
+      <button class="secondary" onclick="document.getElementById('manual-recv').value=''">Pulisci</button>
+    </div>
+    <div id="manual-result" style="display:none; margin-top:1rem;" class="fade-in">
+      <div class="result-box">
+        <div class="result-label">Risultato</div>
+        <div id="manual-status" class="result-value"></div>
+      </div>
+      <div class="result-box" style="margin-top:0.5rem;">
+        <div class="result-label">Messaggio (12 bit)</div>
+        <div id="manual-bits" class="bits-display"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ─── Golay (24,12) Implementation ────────────────────────────────────────────
+
+// Generator matrix for G(24,12): I_12 | P  (systematic form)
+// P is 12x12 over GF(2)
+const P = [
+  [1,1,0,1,1,1,0,0,0,1,0,1],
+  [1,0,1,1,1,0,0,0,1,0,1,1],
+  [0,1,1,1,0,0,0,1,0,1,1,1],
+  [1,1,1,0,0,0,1,0,1,1,0,1],
+  [1,1,0,0,0,1,0,1,1,0,1,1],
+  [1,0,0,0,1,0,1,1,0,1,1,1],
+  [0,0,0,1,0,1,1,0,1,1,1,1],
+  [0,0,1,0,1,1,0,1,1,1,0,1],
+  [0,1,0,1,1,0,1,1,1,0,0,1],
+  [1,0,1,1,0,1,1,1,0,0,0,1],
+  [0,1,1,0,1,1,1,0,0,0,1,1],
+  [1,1,1,1,1,1,1,1,1,1,1,0]
+];
+
+// rows of P (used for syndrome computation)
+const Prows = P; // P[i] = row i
+
+// Columns of P (q_i vectors in the algorithm)
+function getPcol(i) {
+  return P.map(row => row[i]);
+}
+
+function wH(vec) {
+  return vec.reduce((s, b) => s + b, 0);
+}
+
+function xorVec(a, b) {
+  return a.map((v, i) => v ^ b[i]);
+}
+
+// Encode: codeword = [message | message*P mod 2]
+function encode(msg) {
+  const parity = new Array(12).fill(0);
+  for (let j = 0; j < 12; j++) {
+    let s = 0;
+    for (let i = 0; i < 12; i++) s ^= msg[i] * P[i][j];
+    parity[j] = s;
+  }
+  return [...msg, ...parity];
+}
+
+// Syndrome s1 = r1*P + r2  (first 12 bits are r1, last 12 are r2)
+function syndrome1(r) {
+  const r1 = r.slice(0,12), r2 = r.slice(12);
+  const s = new Array(12).fill(0);
+  for (let j = 0; j < 12; j++) {
+    let val = 0;
+    for (let i = 0; i < 12; i++) val ^= r1[i] * P[i][j];
+    val ^= r2[j];
+    s[j] = val;
+  }
+  return s;
+}
+
+// Syndrome s2 = r1 + r2*P^T   (P^T: col i of P^T = row i of P)
+function syndrome2(r) {
+  const r1 = r.slice(0,12), r2 = r.slice(12);
+  const s = new Array(12).fill(0);
+  for (let i = 0; i < 12; i++) {
+    let val = r1[i];
+    for (let j = 0; j < 12; j++) val ^= r2[j] * P[j][i];
+    s[i] = val;
+  }
+  return s;
+}
+
+function decodeGolay(r) {
+  const steps = [];
+  const s1 = syndrome1(r);
+  const s2 = syndrome2(r);
+
+  steps.push({text: `Calcolo s₁ = r₁P + r₂ → wH(s₁) = ${wH(s1)}`, status:'done'});
+  steps.push({text: `Calcolo s₂ = r₁ + r₂Pᵀ → wH(s₂) = ${wH(s2)}`, status:'done'});
+
+  // Step 1: wH(s1) <= 3
+  if (wH(s1) <= 3) {
+    steps.push({text: `wH(s₁) ≤ 3 → errore solo in r₂: e₂ = s₁`, status:'active'});
+    const decoded = r.slice(0,12);
+    return { decoded, steps, errorCount: wH(s1), corrected: true };
+  }
+
+  // Step 2: wH(s2) <= 3
+  if (wH(s2) <= 3) {
+    steps.push({text: `wH(s₂) ≤ 3 → errore solo in r₁: e₁ = s₂`, status:'active'});
+    const decoded = xorVec(r.slice(0,12), s2);
+    return { decoded, steps, errorCount: wH(s2), corrected: true };
+  }
+
+  // Step 3: for i=0..11, s1^(i) = s1 + q_i
+  steps.push({text: `Ciclo 1: test s₁ + qᵢ per i=0..11`, status:'done'});
+  for (let i = 0; i < 12; i++) {
+    const qi = getPcol(i);
+    const s1i = xorVec(s1, qi);
+    if (wH(s1i) <= 2) {
+      const e1 = new Array(12).fill(0);
+      const e2 = [...s1i];
+      e2[i] = (e2[i] || 0); // already in s1i
+      // error pattern: e1 = delta_i (unit vector at i), e2 = s1^(i)
+      const delta = new Array(12).fill(0); delta[i] = 1;
+      steps.push({text: `i=${i}: wH(s₁⊕q${i}) = ${wH(s1i)} ≤ 2 → corretto`, status:'active'});
+      const decoded = xorVec(r.slice(0,12), delta);
+      return { decoded, steps, errorCount: 1+wH(s1i), corrected: true };
+    }
+  }
+
+  // Step 4: for i=0..11, s2^(i) = s2 + q_i
+  steps.push({text: `Ciclo 2: test s₂ + qᵢ per i=0..11`, status:'done'});
+  for (let i = 0; i < 12; i++) {
+    const qi = getPcol(i);
+    const s2i = xorVec(s2, qi);
+    if (wH(s2i) <= 2) {
+      steps.push({text: `i=${i}: wH(s₂⊕q${i}) = ${wH(s2i)} ≤ 2 → corretto`, status:'active'});
+      const delta = new Array(12).fill(0); delta[i] = 1;
+      const decoded = xorVec(r.slice(0,12), s2i);
+      return { decoded, steps, errorCount: 1+wH(s2i), corrected: true };
+    }
+  }
+
+  steps.push({text: `Errore non correggibile (troppi errori)`, status:'error'});
+  return { decoded: r.slice(0,12), steps, errorCount: -1, corrected: false };
+}
+
+// ─── State ────────────────────────────────────────────────────────────────────
+let currentMsg = null;
+let currentCW = null;
+let receivedWord = null;
+let flippedBits = new Set();
+
+// ─── UI Helpers ──────────────────────────────────────────────────────────────
+function parseBits(str, len) {
+  str = str.trim();
+  if (!/^[01]+$/.test(str) || str.length !== len) return null;
+  return str.split('').map(Number);
+}
+
+function bitsToString(bits) { return bits.join(''); }
+
+function renderBits(container, bits, clickable=false, flipped=new Set()) {
+  container.innerHTML = '';
+  bits.forEach((b, i) => {
+    const el = document.createElement('div');
+    el.className = 'bit ' + (flipped.has(i) ? 'flipped' : (b ? 'one' : 'zero'));
+    el.textContent = b;
+    el.title = `Bit ${i}`;
+    if (clickable) {
+      el.onclick = () => toggleBit(i);
+    }
+    container.appendChild(el);
+  });
+}
+
+function showEl(id) { document.getElementById(id).style.display = ''; }
+function hideEl(id) { document.getElementById(id).style.display = 'none'; }
+
+function validate(input, len) {
+  const v = input.value.trim();
+  if (v.length === 0) { input.className = ''; return; }
+  const ok = /^[01]+$/.test(v) && v.length === len;
+  input.className = ok ? 'valid' : 'invalid';
+}
+
+document.getElementById('msg-input').addEventListener('input', function() {
+  validate(this, 12);
+});
+
+document.getElementById('noise-count').addEventListener('input', function() {
+  document.getElementById('noise-val').textContent = this.value;
+});
+
+document.getElementById('manual-recv').addEventListener('input', function() {
+  validate(this, 24);
+});
+
+// ─── Actions ─────────────────────────────────────────────────────────────────
+function randomMsg() {
+  const bits = Array.from({length:12}, () => Math.random()<0.5?'0':'1').join('');
+  document.getElementById('msg-input').value = bits;
+  validate(document.getElementById('msg-input'), 12);
+}
+
+function clearAll() {
+  document.getElementById('msg-input').value = '';
+  document.getElementById('msg-input').className = '';
+  hideEl('encode-result');
+  hideEl('channel-card');
+  hideEl('decode-card');
+  currentMsg = null; currentCW = null; receivedWord = null; flippedBits = new Set();
+}
+
+function encodeMsg() {
+  const inp = document.getElementById('msg-input').value.trim();
+  const msg = parseBits(inp, 12);
+  if (!msg) { alert('Inserisci esattamente 12 bit (0 e 1)'); return; }
+
+  currentMsg = msg;
+  currentCW = encode(msg);
+  receivedWord = [...currentCW];
+  flippedBits = new Set();
+
+  // Show encode result
+  const cwDisp = document.getElementById('codeword-display');
+  renderBits(cwDisp, currentCW);
+  document.getElementById('cw-idx').textContent =
+    'Bit 0-11: messaggio originale | Bit 12-23: bit di parità';
+  showEl('encode-result');
+  document.getElementById('encode-result').classList.add('fade-in');
+
+  // Show channel
+  showEl('channel-card');
+  document.getElementById('channel-card').classList.add('fade-in');
+  renderChannelBits();
+  hideEl('decode-card');
+  document.getElementById('error-info').textContent = '';
+}
+
+function renderChannelBits() {
+  const container = document.getElementById('channel-bits');
+  renderBits(container, receivedWord, true, flippedBits);
+}
+
+function toggleBit(i) {
+  receivedWord[i] ^= 1;
+  if (flippedBits.has(i)) flippedBits.delete(i);
+  else flippedBits.add(i);
+  renderChannelBits();
+  updateErrorInfo();
+}
+
+function updateErrorInfo() {
+  const n = flippedBits.size;
+  const el = document.getElementById('error-info');
+  if (n === 0) { el.textContent = ''; return; }
+  const colorClass = n <= 3 ? 'color:var(--warn)' : 'color:var(--error)';
+  el.innerHTML = `<span style="${colorClass}">${n} bit invertito/i</span> — ${n<=3?'correggibile':'potrebbe non essere correggibile'}`;
+}
+
+function resetChannel() {
+  receivedWord = [...currentCW];
+  flippedBits = new Set();
+  document.getElementById('noise-count').value = 0;
+  document.getElementById('noise-val').textContent = '0';
+  renderChannelBits();
+  updateErrorInfo();
+  hideEl('decode-card');
+}
+
+function applyNoise() {
+  const n = parseInt(document.getElementById('noise-count').value);
+  receivedWord = [...currentCW];
+  flippedBits = new Set();
+  const indices = [];
+  while (indices.length < n) {
+    const idx = Math.floor(Math.random()*24);
+    if (!indices.includes(idx)) indices.push(idx);
+  }
+  indices.forEach(i => { receivedWord[i] ^= 1; flippedBits.add(i); });
+  renderChannelBits();
+  updateErrorInfo();
+}
+
+function decodeWord() {
+  runDecode(receivedWord);
+}
+
+function runDecode(word) {
+  const result = decodeGolay(word);
+
+  showEl('decode-card');
+  document.getElementById('decode-card').classList.add('fade-in');
+
+  // Render steps
+  const ul = document.getElementById('steps-ul');
+  ul.innerHTML = '';
+  result.steps.forEach(s => {
+    const li = document.createElement('li');
+    li.className = s.status === 'active' ? 'active' : (s.status === 'done' ? 'done' : '');
+    const icon = s.status === 'active' ? '▶' : (s.status === 'done' ? '✓' : '✗');
+    li.innerHTML = `<span class="step-icon">${icon}</span><span>${s.text}</span>`;
+    ul.appendChild(li);
+  });
+
+  // Render result
+  showEl('decode-result');
+  const recovBits = document.getElementById('recovered-bits');
+  renderBits(recovBits, result.decoded);
+
+  const status = document.getElementById('decode-status');
+  if (result.corrected) {
+    const match = bitsToString(result.decoded) === bitsToString(currentMsg || result.decoded);
+    status.className = 'result-value success';
+    status.textContent = `✓ Decodifica riuscita — ${result.errorCount} errore/i corretto/i`;
+  } else {
+    status.className = 'result-value error';
+    status.textContent = '✗ Errore non correggibile — troppi bit errati';
+  }
+}
+
+function manualDecode() {
+  const inp = document.getElementById('manual-recv').value.trim();
+  const word = parseBits(inp, 24);
+  if (!word) { alert('Inserisci esattamente 24 bit (0 e 1)'); return; }
+
+  const result = decodeGolay(word);
+  showEl('manual-result');
+  document.getElementById('manual-result').classList.add('fade-in');
+
+  const status = document.getElementById('manual-status');
+  if (result.corrected) {
+    status.className = 'result-value success';
+    status.textContent = `✓ Decodifica riuscita — ${result.errorCount} errore/i corretto/i`;
+  } else {
+    status.className = 'result-value error';
+    status.textContent = '✗ Errore non correggibile';
+  }
+
+  renderBits(document.getElementById('manual-bits'), result.decoded);
+}
+</script>
+</body>
+</html>
