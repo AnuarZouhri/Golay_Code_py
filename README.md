@@ -1,2 +1,2 @@
 # Golay_Code_py
-Questo progetto illustra tramite un programma il funzionamento del codice di Golay.
+Questo progetto illustra tramite un programma (artifically generated) il funzionamento del codice di Golay.
