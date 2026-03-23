@@ -1,6 +1,6 @@
 # Golay Code
 
-This project illustrates, through a program, the functioning of the Golay code.
+This project illustrates, through a program, the functioning of the Golay code. This argument was part of Thesis for bachelor in Mathematics.
 
 ## What is the Golay Code?
 
@@ -14,7 +14,6 @@ The Golay code has found use in several real-world applications:
 
 - **Deep space communications**: NASA used the Golay code in the Voyager 1 and Voyager 2 missions (1977) to transmit images of Jupiter and Saturn back to Earth reliably over vast distances.
 - **Data storage**: its strong error-correction properties make it suitable for environments where data integrity is critical.
-- **Mathematical research**: the Golay code has deep connections to combinatorics, group theory, and the theory of lattices. In particular, it is related to the Mathieu group $M_{23}$, one of the sporadic simple groups.
 
 ## Mathematical Background
 
