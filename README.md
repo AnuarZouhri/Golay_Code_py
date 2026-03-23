@@ -81,7 +81,7 @@ The following algorithm decodes a received word for the extended Golay code $\ma
 
 Let $\underline{r} = (\underline{r}_1 \mid \underline{r}_2)$ be the received word,
 $\underline{s}_1 = \underline{r}H_1^T$, $\underline{s}_2 = \underline{r}H_2^T$.
-Let $\underline{q}_0, ..., \underline{q}_{11}$ be the rows of $Q$,
+Let $\underline{q}_0 ... \underline{q}_{11}$ be the rows of $Q$,
 $\underline{q}_0', \dots, \underline{q}_{11}'$ the rows of $Q^T$,
 and $\underline{\delta}_i \in GF(2)^{12}$ the vector with only the $i$-th bit equal to 1.
 ```
