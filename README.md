@@ -50,22 +50,22 @@ Siano $\underline{q}_0, \dots, \underline{q}_{11}$ le righe di $Q$,
 $\underline{q}_0', \dots, \underline{q}_{11}'$ le righe di $Q^T$
 e $\underline{\delta}_i \in GF(2)^{12}$ il vettore con solo il bit $i$-esimo uguale a 1.
 ```
-SE w_H(s1) ≤ 3:
-    restituisci r1 e termina
+IF w_H(s1) ≤ 3:
+    return r1
 
-ALTRIMENTI SE w_H(s2) ≤ 3:
-    restituisci r1 + s2 e termina
+ELSE SE w_H(s2) ≤ 3:
+    return r1 + s2 
 
-ALTRIMENTI:
-    PER i = 0, ..., 11:
+ELSE:
+    FOR i = 0, ..., 11:
         s1_i = s1 + q'_i
-        SE w_H(s1_i) ≤ 2:
-            restituisci r1 + δ_i e termina
+        IF w_H(s1_i) ≤ 2:
+            return r1 + δ_i
 
-    PER i = 0, ..., 11:
+    FOR i = 0, ..., 11:
         s2_i = s2 + q_i
-        SE w_H(s2_i) ≤ 2:
-            restituisci r1 + s2_i e termina
+        IF w_H(s2_i) ≤ 2:
+            return r1 + s2_i
 
-    rileva un errore non correggibile
+    detect un error which cannot be correct
 ```
